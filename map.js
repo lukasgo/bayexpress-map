@@ -21,49 +21,68 @@
       name: 'Bodrum',
       coords: [27.4295, 37.0344],
       description: 'Historic peninsula with vibrant marina life',
-      tag: 'bodrum-region'
+      type: 'region',
+      link: '/tag/bodrum-region/'
     },
     {
       name: 'Datça',
       coords: [27.6870, 36.7260],
       description: 'Unspoiled peninsula between two seas',
-      tag: 'datca-region'
+      type: 'region',
+      link: '/tag/datca-region/'
     },
     {
       name: 'Bozburun',
       coords: [28.0570, 36.6880],
       description: 'Traditional gulet-building village',
-      tag: 'bozburun-region'
+      type: 'region',
+      link: '/tag/bozburun-region/'
     },
     {
       name: 'Marmaris',
       coords: [28.2740, 36.8510],
       description: 'Major charter hub and marina town',
-      tag: 'marmaris-region'
+      type: 'region',
+      link: '/tag/marmaris-region/'
     },
     {
       name: 'Göcek',
       coords: [28.9400, 36.7550],
       description: 'Sheltered bay with world-class marinas',
-      tag: 'gocek-region'
+      type: 'region',
+      link: '/tag/gocek-region/'
     },
     {
       name: 'Fethiye',
       coords: [29.1145, 36.6515],
       description: 'Gateway to the Twelve Islands',
-      tag: 'fethiye-region'
+      type: 'region',
+      link: '/tag/fethiye-region/'
     },
     {
       name: 'Kaş',
       coords: [29.6380, 36.2000],
       description: 'Charming harbour town near Greek islands',
-      tag: 'kas-region'
+      type: 'region',
+      link: '/tag/kas-region/'
     },
     {
       name: 'Greek Dodecanese',
       coords: [27.1350, 36.8930],
       description: 'Kos, Rhodes, Symi and more',
-      tag: 'greek-dodecanese-islands'
+      type: 'region',
+      link: '/tag/greek-dodecanese-islands/'
+    }
+  ];
+
+  // ── Restaurant Data ──
+  var restaurants = [
+    {
+      name: 'Boynuz Bükü Yacht Mola',
+      coords: [28.8933, 36.7117],
+      description: 'Shaded park-like restaurant with T-jetty moorings for up to 35 boats, seafood specialities and spring water from a nearby waterfall',
+      type: 'restaurant',
+      link: '/boynuz-buku/'
     }
   ];
 
@@ -239,6 +258,32 @@
     return dirs[index];
   }
 
+  // ── Modal ──
+  var modal = document.createElement('div');
+  modal.className = 'map-modal';
+  modal.innerHTML =
+    '<div class="map-modal-backdrop"></div>' +
+    '<div class="map-modal-content">' +
+      '<button class="map-modal-close">&times;</button>' +
+      '<iframe class="map-modal-iframe" frameborder="0"></iframe>' +
+    '</div>';
+  document.body.appendChild(modal);
+
+  modal.querySelector('.map-modal-backdrop').addEventListener('click', closeModal);
+  modal.querySelector('.map-modal-close').addEventListener('click', closeModal);
+
+  function openModal(url) {
+    modal.querySelector('.map-modal-iframe').src = url;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.classList.remove('active');
+    modal.querySelector('.map-modal-iframe').src = '';
+    document.body.style.overflow = '';
+  }
+
   // ── Markers ──
   var markers = [];
 
@@ -247,6 +292,7 @@
     markers.forEach(function (m) { m.remove(); });
     markers = [];
 
+    // Add region markers
     regions.forEach(function (region) {
       var el = document.createElement('div');
       el.className = 'marker-region';
@@ -256,12 +302,46 @@
         '<div class="popup-region">' +
           '<h3>' + region.name + '</h3>' +
           '<p>' + region.description + '</p>' +
-          '<a href="/tag/' + region.tag + '/">Explore region →</a>' +
+          '<a href="' + region.link + '">Explore region &rarr;</a>' +
         '</div>'
       );
 
       var marker = new mapboxgl.Marker(el)
         .setLngLat(region.coords)
+        .setPopup(popup)
+        .addTo(map);
+
+      markers.push(marker);
+    });
+
+    // Add restaurant markers
+    restaurants.forEach(function (restaurant) {
+      var el = document.createElement('div');
+      el.className = 'marker-restaurant';
+      el.title = restaurant.name;
+
+      var popupId = 'popup-restaurant-' + Math.random().toString(36).substring(2, 11);
+      var popup = new mapboxgl.Popup({ offset: 20, maxWidth: '260px' }).setHTML(
+        '<div class="popup-region">' +
+          '<h3>' + restaurant.name + '</h3>' +
+          '<p>' + restaurant.description + '</p>' +
+          '<a href="#" id="' + popupId + '">Read more &rarr;</a>' +
+        '</div>'
+      );
+
+      popup.on('open', function () {
+        var link = document.getElementById(popupId);
+        if (link) {
+          link.addEventListener('click', function (e) {
+            e.preventDefault();
+            popup.remove();
+            openModal(restaurant.link);
+          });
+        }
+      });
+
+      var marker = new mapboxgl.Marker(el)
+        .setLngLat(restaurant.coords)
         .setPopup(popup)
         .addTo(map);
 
