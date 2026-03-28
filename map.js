@@ -108,8 +108,9 @@
     if (!raw) return null;
 
     // Extract content from meta tag if present
-    // e.g. <meta name="geo.position" content="36º 11.81´ N - 29º 50.82´ E">
-    var metaMatch = raw.match(/content\s*=\s*["']([^"']+)["']/i);
+    // Use double-quote only matching since Ghost always wraps attributes in double quotes
+    // e.g. <meta name="geo.position" content="36° 10.66' N - 29° 51.45' E">
+    var metaMatch = raw.match(/content\s*=\s*"([^"]+)"/i);
     var text = metaMatch ? metaMatch[1] : raw;
 
     var coords = parseCoordinates(text);
