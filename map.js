@@ -417,13 +417,7 @@
   var gpsBtn = document.createElement('button');
   gpsBtn.className = 'gps-btn';
   gpsBtn.title = 'Show my position';
-  gpsBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none">' +
-    '<circle cx="9" cy="9" r="6" stroke="#333" stroke-width="1.5" fill="none"/>' +
-    '<circle cx="9" cy="9" r="2.5" class="gps-center" fill="#378ADD"/>' +
-    '<line x1="9" y1="0.5" x2="9" y2="4" stroke="#333" stroke-width="1.5"/>' +
-    '<line x1="9" y1="14" x2="9" y2="17.5" stroke="#333" stroke-width="1.5"/>' +
-    '<line x1="0.5" y1="9" x2="4" y2="9" stroke="#333" stroke-width="1.5"/>' +
-    '<line x1="14" y1="9" x2="17.5" y2="9" stroke="#333" stroke-width="1.5"/></svg>';
+  gpsBtn.innerHTML = '📍';
   gpsWrap.appendChild(gpsBtn);
   document.getElementById('map').appendChild(gpsWrap);
 
