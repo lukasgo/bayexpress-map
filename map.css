@@ -45,8 +45,15 @@
   top: 12px;
   left: 12px;
   z-index: 12;
-  width: calc(100% - 260px);
+  width: calc(100% - 24px);
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+.search-inner {
+  flex: 1;
   max-width: 320px;
+  position: relative;
 }
 .search-box {
   display: flex;
@@ -147,11 +154,12 @@
   text-align: center;
 }
 
-/* ── Tool Buttons (top right) ── */
+/* ── Tool Buttons (next to search) ── */
 .ctrl-tools {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
   z-index: 10;
   display: flex;
   gap: 6px;
@@ -523,14 +531,7 @@
 }
 
 /* ── GPS Dot (rendered via JS as a source/layer, but pulsing ring is a marker) ── */
-.gps-dot-marker {
-  width: 16px !important;
-  height: 16px !important;
-  background: #378ADD;
-  border: 3px solid #fff;
-  border-radius: 50% !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-}
+/* ── GPS Dot (SVG rendered in JS) ── */
 .mapboxgl-marker {
   overflow: visible !important;
 }
@@ -596,8 +597,9 @@
 /* ── Responsive ── */
 @media (max-width: 767px) {
   .search-wrap { left: 8px; right: 50px; width: auto; }
-  .ctrl-tools { right: 8px; top: 12px; }
-  .search-wrap { left: 8px; width: calc(100% - 200px); }
+  .ctrl-tools { gap: 4px; }
+  .search-wrap { left: 8px; right: 8px; width: auto; }
+  .search-inner { max-width: none; }
   .ctrl-btn span.btn-label { display: none; }
   .ctrl-btn { padding: 0 10px; }
   .filter-bar { top: 58px; left: 8px; flex-wrap: nowrap; overflow-x: auto; max-width: calc(100% - 16px); -webkit-overflow-scrolling: touch; }

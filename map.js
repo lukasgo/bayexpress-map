@@ -241,12 +241,15 @@
   var searchWrap = document.createElement('div');
   searchWrap.className = 'search-wrap';
   searchWrap.innerHTML =
-    '<div class="search-box">' +
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>' +
-      '<input type="text" placeholder="Search places…" id="search-input" autocomplete="off" />' +
-      '<button class="search-clear" id="search-clear">&times;</button>' +
+    '<div class="search-inner">' +
+      '<div class="search-box">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>' +
+        '<input type="text" placeholder="Search places…" id="search-input" autocomplete="off" />' +
+        '<button class="search-clear" id="search-clear">&times;</button>' +
+      '</div>' +
+      '<div class="search-results" id="search-results"></div>' +
     '</div>' +
-    '<div class="search-results" id="search-results"></div>';
+    '<div class="ctrl-tools" id="ctrl-tools"></div>';
   document.getElementById('map').appendChild(searchWrap);
 
   var searchInput   = document.getElementById('search-input');
@@ -331,9 +334,7 @@
   // UI: TOOL BUTTONS (satellite + measure)
   // ══════════════════════════════════════════════════════════════
 
-  var ctrlTools = document.createElement('div');
-  ctrlTools.className = 'ctrl-tools';
-  document.getElementById('map').appendChild(ctrlTools);
+  var ctrlTools = document.getElementById('ctrl-tools');
 
   // Satellite
   var satBtn = document.createElement('button');
@@ -470,8 +471,9 @@
     // Add GPS marker
     if (gpsMarker) gpsMarker.remove();
     var el = document.createElement('div');
-    el.className = 'gps-dot-marker';
-    gpsMarker = new mapboxgl.Marker(el)
+    el.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="#378ADD" stroke="#fff" stroke-width="3"/></svg>';
+    el.style.cursor = 'default';
+    gpsMarker = new mapboxgl.Marker({ element: el, anchor: 'center' })
       .setLngLat([gpsPosition.lng, gpsPosition.lat])
       .addTo(map);
 
