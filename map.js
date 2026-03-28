@@ -248,8 +248,7 @@
         '<button class="search-clear" id="search-clear">&times;</button>' +
       '</div>' +
       '<div class="search-results" id="search-results"></div>' +
-    '</div>' +
-    '<div class="ctrl-tools" id="ctrl-tools"></div>';
+    '</div>';
   document.getElementById('map').appendChild(searchWrap);
 
   var searchInput   = document.getElementById('search-input');
@@ -334,21 +333,26 @@
   // UI: TOOL BUTTONS (satellite + measure)
   // ══════════════════════════════════════════════════════════════
 
-  var ctrlTools = document.getElementById('ctrl-tools');
+  var ctrlTools = document.createElement('div');
+  ctrlTools.className = 'ctrl-tools';
+  document.getElementById('map').appendChild(ctrlTools);
 
-  // Satellite
+  // Satellite — icon only
   var satBtn = document.createElement('button');
-  satBtn.className = 'ctrl-btn';
-  satBtn.innerHTML = '🛰 Satellite';
+  satBtn.className = 'ctrl-icon-btn';
+  satBtn.title = 'Satellite view';
+  satBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
   satBtn.addEventListener('click', function () {
     if (currentStyle === 'streets') {
       map.setStyle(STYLE_SATELLITE);
       currentStyle = 'satellite';
-      satBtn.innerHTML = '🗺 Map';
+      satBtn.classList.add('active');
+      satBtn.title = 'Map view';
     } else {
       map.setStyle(STYLE_STREETS);
       currentStyle = 'streets';
-      satBtn.innerHTML = '🛰 Satellite';
+      satBtn.classList.remove('active');
+      satBtn.title = 'Satellite view';
     }
     map.once('style.load', function () {
       addRadiusSource();
@@ -357,10 +361,11 @@
   });
   ctrlTools.appendChild(satBtn);
 
-  // Measure
+  // Measure — icon only
   var measBtn = document.createElement('button');
-  measBtn.className = 'ctrl-btn';
-  measBtn.innerHTML = '📏 Measure';
+  measBtn.className = 'ctrl-icon-btn';
+  measBtn.title = 'Measure distance';
+  measBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20L20 2"/><path d="M5.5 16.5L8 14"/><path d="M9.5 12.5L12 10"/><path d="M13.5 8.5L16 6"/></svg>';
   measBtn.addEventListener('click', function () {
     measureActive = !measureActive;
     measBtn.classList.toggle('active', measureActive);
