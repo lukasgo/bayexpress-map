@@ -339,16 +339,16 @@
   // Satellite
   var satBtn = document.createElement('button');
   satBtn.className = 'ctrl-btn';
-  satBtn.innerHTML = '🛰 <span class="btn-label">Satellite</span>';
+  satBtn.innerHTML = '<span class="btn-label">Satellite</span>';
   satBtn.addEventListener('click', function () {
     if (currentStyle === 'streets') {
       map.setStyle(STYLE_SATELLITE);
       currentStyle = 'satellite';
-      satBtn.innerHTML = '🗺 <span class="btn-label">Map</span>';
+      satBtn.innerHTML = '<span class="btn-label">Map</span>';
     } else {
       map.setStyle(STYLE_STREETS);
       currentStyle = 'streets';
-      satBtn.innerHTML = '🛰 <span class="btn-label">Satellite</span>';
+      satBtn.innerHTML = '<span class="btn-label">Satellite</span>';
     }
     map.once('style.load', function () {
       addRadiusSource();
@@ -360,7 +360,7 @@
   // Measure
   var measBtn = document.createElement('button');
   measBtn.className = 'ctrl-btn';
-  measBtn.innerHTML = '📏 <span class="btn-label">Measure</span>';
+  measBtn.innerHTML = '<span class="btn-label">Measure</span>';
   measBtn.addEventListener('click', function () {
     measureActive = !measureActive;
     measBtn.classList.toggle('active', measureActive);
