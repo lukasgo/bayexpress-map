@@ -187,10 +187,10 @@
 }
 .ctrl-icon-btn.active {
   background: #c8a860;
-  color: #fff;
 }
-.ctrl-icon-btn.active svg {
-  stroke: #fff;
+.ctrl-icon-btn.active svg,
+.ctrl-icon-btn.active svg * {
+  stroke: #fff !important;
 }
 
 /* ── Filter Pills ── */

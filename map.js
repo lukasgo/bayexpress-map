@@ -341,7 +341,7 @@
   var satBtn = document.createElement('button');
   satBtn.className = 'ctrl-icon-btn';
   satBtn.title = 'Satellite view';
-  satBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
+  satBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10A15 15 0 0 1 12 2z"/></svg>';
   satBtn.addEventListener('click', function () {
     if (currentStyle === 'streets') {
       map.setStyle(STYLE_SATELLITE);
@@ -365,7 +365,7 @@
   var measBtn = document.createElement('button');
   measBtn.className = 'ctrl-icon-btn';
   measBtn.title = 'Measure distance';
-  measBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20L20 2"/><path d="M5.5 16.5L8 14"/><path d="M9.5 12.5L12 10"/><path d="M13.5 8.5L16 6"/></svg>';
+  measBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><path d="M3 21L21 3"/><path d="M6 18l2-2"/><path d="M10 14l2-2"/><path d="M14 10l2-2"/><path d="M18 6l2-2"/></svg>';
   measBtn.addEventListener('click', function () {
     measureActive = !measureActive;
     measBtn.classList.toggle('active', measureActive);
