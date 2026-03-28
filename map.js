@@ -54,7 +54,7 @@
   //   1. Degrees + decimal minutes:  36º 11.81´ N - 29º 50.82´ E
   //   2. Degrees + minutes + seconds: 36°44'54'' N, 28°56'34'' E
   //   3. Decimal degrees:             36.1968 N, 29.8470 E
-  // Source priority: codeinjection_head → custom_excerpt → html
+  // Source: codeinjection_head only
   // ══════════════════════════════════════════════════════════════
 
   function parseCoordinates(text) {
@@ -103,23 +103,9 @@
 
   // Try multiple fields in priority order
   function extractCoords(post) {
-    // 1. codeinjection_head — the designated coordinate field
+    // Only source: codeinjection_head
     var coords = parseCoordinates(post.codeinjection_head);
-    if (coords) return { coords: coords, source: 'codeinjection_head', raw: post.codeinjection_head.replace(/<[^>]+>/g, '').trim() };
-
-    // 2. custom_excerpt — legacy, some older posts have coords here
-    coords = parseCoordinates(post.custom_excerpt);
-    if (coords) return { coords: coords, source: 'custom_excerpt', raw: post.custom_excerpt.trim() };
-
-    // 3. html body — coordinates embedded in article text
-    coords = parseCoordinates(post.html);
-    if (coords) {
-      var rawMatch = (post.html || '').replace(/<[^>]+>/g, ' ').match(
-        /\d{1,3}\s*[°º][\s\d.,'''′´`]+[NSns]\s*[–—\-,;\/\s]+\s*\d{1,3}\s*[°º][\s\d.,'''′´`]+[EWew]/
-      );
-      return { coords: coords, source: 'html', raw: rawMatch ? rawMatch[0].trim() : '' };
-    }
-
+    if (coords) return { coords: coords, raw: post.codeinjection_head.replace(/<[^>]+>/g, '').trim() };
     return null;
   }
 
@@ -163,7 +149,7 @@
     var EXCLUDE_TAGS = config.excludeTags || ['Featured'];
 
     posts.forEach(function (post) {
-      // Extract coordinates: codeinjection_head → custom_excerpt → html
+      // Extract coordinates from codeinjection_head only
       var coordResult = extractCoords(post);
       if (!coordResult) return;
 
@@ -219,7 +205,6 @@
         slug: post.slug,
         coords: coordResult.coords,
         coordsText: coordResult.raw,
-        coordsSource: coordResult.source,
         category: primaryCat,
         region: region,
         allTags: catTags,
@@ -833,11 +818,6 @@
         var skipped = posts.length - allPlaces.length;
         if (skipped > 0) console.log('[BayExpress] ' + skipped + ' posts skipped (no coordinates or no category tag).');
         console.log('[BayExpress] Categories:', Object.keys(categories).join(', '));
-
-        // Show coordinate sources for debugging
-        var sources = { codeinjection_head: 0, custom_excerpt: 0, html: 0 };
-        allPlaces.forEach(function (p) { sources[p.coordsSource] = (sources[p.coordsSource] || 0) + 1; });
-        console.log('[BayExpress] Coordinate sources:', JSON.stringify(sources));
 
         buildFilters();
         renderMarkers();

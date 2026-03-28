@@ -44,8 +44,9 @@
   position: absolute;
   top: 12px;
   left: 12px;
-  z-index: 10;
-  width: 300px;
+  z-index: 12;
+  width: calc(100% - 260px);
+  max-width: 320px;
 }
 .search-box {
   display: flex;
@@ -100,6 +101,8 @@
   overflow-y: auto;
   margin-top: -4px;
   padding-top: 4px;
+  position: relative;
+  z-index: 20;
 }
 .search-results.open {
   display: block;
@@ -147,7 +150,7 @@
 /* ── Tool Buttons (top right) ── */
 .ctrl-tools {
   position: absolute;
-  top: 100px;
+  top: 12px;
   right: 12px;
   z-index: 10;
   display: flex;
@@ -593,7 +596,8 @@
 /* ── Responsive ── */
 @media (max-width: 767px) {
   .search-wrap { left: 8px; right: 50px; width: auto; }
-  .ctrl-tools { right: 8px; top: 90px; }
+  .ctrl-tools { right: 8px; top: 12px; }
+  .search-wrap { left: 8px; width: calc(100% - 200px); }
   .ctrl-btn span.btn-label { display: none; }
   .ctrl-btn { padding: 0 10px; }
   .filter-bar { top: 58px; left: 8px; flex-wrap: nowrap; overflow-x: auto; max-width: calc(100% - 16px); -webkit-overflow-scrolling: touch; }
