@@ -1,11 +1,5 @@
 /* Bayexpress Interactive Sailing Map */
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
 /* ── Map Container ── */
 #map {
   position: relative;
@@ -153,7 +147,7 @@ body {
 /* ── Tool Buttons (top right) ── */
 .ctrl-tools {
   position: absolute;
-  top: 12px;
+  top: 100px;
   right: 12px;
   z-index: 10;
   display: flex;
@@ -527,12 +521,15 @@ body {
 
 /* ── GPS Dot (rendered via JS as a source/layer, but pulsing ring is a marker) ── */
 .gps-dot-marker {
-  width: 16px;
-  height: 16px;
+  width: 16px !important;
+  height: 16px !important;
   background: #378ADD;
   border: 3px solid #fff;
-  border-radius: 50%;
+  border-radius: 50% !important;
   box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.mapboxgl-marker {
+  overflow: visible !important;
 }
 
 /* ── Modal ── */
@@ -596,7 +593,7 @@ body {
 /* ── Responsive ── */
 @media (max-width: 767px) {
   .search-wrap { left: 8px; right: 50px; width: auto; }
-  .ctrl-tools { right: 8px; top: 12px; }
+  .ctrl-tools { right: 8px; top: 90px; }
   .ctrl-btn span.btn-label { display: none; }
   .ctrl-btn { padding: 0 10px; }
   .filter-bar { top: 58px; left: 8px; flex-wrap: nowrap; overflow-x: auto; max-width: calc(100% - 16px); -webkit-overflow-scrolling: touch; }
