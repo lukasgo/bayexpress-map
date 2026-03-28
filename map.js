@@ -104,8 +104,16 @@
   // Try multiple fields in priority order
   function extractCoords(post) {
     // Only source: codeinjection_head
-    var coords = parseCoordinates(post.codeinjection_head);
-    if (coords) return { coords: coords, raw: post.codeinjection_head.replace(/<[^>]+>/g, '').trim() };
+    var raw = post.codeinjection_head;
+    if (!raw) return null;
+
+    // Extract content from meta tag if present
+    // e.g. <meta name="geo.position" content="36º 11.81´ N - 29º 50.82´ E">
+    var metaMatch = raw.match(/content\s*=\s*["']([^"']+)["']/i);
+    var text = metaMatch ? metaMatch[1] : raw;
+
+    var coords = parseCoordinates(text);
+    if (coords) return { coords: coords, raw: text.replace(/<[^>]+>/g, '').trim() };
     return null;
   }
 
