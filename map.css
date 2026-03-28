@@ -179,18 +179,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #333;
-  transition: background 0.2s, color 0.2s;
+  font-size: 16px;
+  line-height: 1;
+  transition: background 0.2s;
 }
 .ctrl-icon-btn:hover {
   background: #f0f0f0;
 }
 .ctrl-icon-btn.active {
   background: #c8a860;
-}
-.ctrl-icon-btn.active svg,
-.ctrl-icon-btn.active svg * {
-  stroke: #fff !important;
 }
 
 /* ── Filter Pills ── */
