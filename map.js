@@ -569,7 +569,7 @@
   document.getElementById('map').appendChild(measPanel);
 
   measPanel.querySelector('.measure-clear').addEventListener('click', function () {
-    if (draw) { draw.deleteAll(); updateMeasurement(); }
+    if (draw) { draw.deleteAll(); updateMeasurement(); draw.changeMode('draw_line_string'); }
   });
 
   function enableMeasure() {
