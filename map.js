@@ -43,7 +43,7 @@
   var draw         = null;
   var measureActive = false;
 
-  var STYLE_STREETS   = 'mapbox://styles/mapbox/outdoors-v12';
+  var STYLE_STREETS   = 'mapbox://styles/bayexpress/cj4fpg6iu1jgq2rqmr0tbxukc';
   var STYLE_SATELLITE = 'mapbox://styles/mapbox/satellite-streets-v12';
   var currentStyle    = 'streets';
 
