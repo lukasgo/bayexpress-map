@@ -1001,12 +1001,14 @@
         buildFilters();
         renderMarkers();
 
-        // Deep link: ?place=post-slug → fly to place and open popup
-        var urlSlug = new URLSearchParams(window.location.search).get('place');
+        // Deep link: ?place=post-slug&zoom=12 → fly to place and open popup
+        var urlParams = new URLSearchParams(window.location.search);
+        var urlSlug = urlParams.get('place');
+        var urlZoom = parseInt(urlParams.get('zoom'), 10) || 14;
         var deepLinkPlace = urlSlug ? allPlaces.find(function(p) { return p.slug === urlSlug; }) : null;
 
         if (deepLinkPlace) {
-          map.flyTo({ center: [deepLinkPlace.coords.lng, deepLinkPlace.coords.lat], zoom: 14, duration: 1200 });
+          map.flyTo({ center: [deepLinkPlace.coords.lng, deepLinkPlace.coords.lat], zoom: urlZoom, duration: 1200 });
           setTimeout(function() {
             new mapboxgl.Popup({ offset: deepLinkPlace.polygon ? 0 : 18, maxWidth: '280px', closeButton: true })
               .setLngLat([deepLinkPlace.coords.lng, deepLinkPlace.coords.lat])
