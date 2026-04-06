@@ -88,7 +88,7 @@
       return { lat: lat, lng: lng };
     }
 
-    // Format 3: Decimal degrees — 36.1968 N, 29.8470 E
+    // Format 3: Decimal degrees with direction — 36.1968 N, 29.8470 E
     var dd = text.match(
       /(\d{1,3}[.,]\d+)\s*[°]?\s*([NSns])\s*[,;\/\s–—\-]+\s*(\d{1,3}[.,]\d+)\s*[°]?\s*([EWew])/
     );
@@ -98,6 +98,18 @@
       if (dd[2].toUpperCase() === 'S') dlat = -dlat;
       if (dd[4].toUpperCase() === 'W') dlng = -dlng;
       return { lat: dlat, lng: dlng };
+    }
+
+    // Format 4: Plain decimal — 36.1968,29.8470 (no direction letters, assumes N/E)
+    var plain = text.match(
+      /(-?\d{1,3}[.,]\d+)\s*[,;]\s*(-?\d{1,3}[.,]\d+)/
+    );
+    if (plain) {
+      var plat = parseFloat(plain[1].replace(',', '.'));
+      var plng = parseFloat(plain[2].replace(',', '.'));
+      if (isFinite(plat) && isFinite(plng) && Math.abs(plat) <= 90 && Math.abs(plng) <= 180) {
+        return { lat: plat, lng: plng };
+      }
     }
 
     return null;
