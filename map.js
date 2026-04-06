@@ -1001,11 +1001,25 @@
         buildFilters();
         renderMarkers();
 
-        // Fit bounds
-        if (allPlaces.length > 0) {
-          var bounds = new mapboxgl.LngLatBounds();
-          allPlaces.forEach(function (p) { bounds.extend([p.coords.lng, p.coords.lat]); });
-          map.fitBounds(bounds, { padding: 60, maxZoom: 12 });
+        // Deep link: ?place=post-slug → fly to place and open popup
+        var urlSlug = new URLSearchParams(window.location.search).get('place');
+        var deepLinkPlace = urlSlug ? allPlaces.find(function(p) { return p.slug === urlSlug; }) : null;
+
+        if (deepLinkPlace) {
+          map.flyTo({ center: [deepLinkPlace.coords.lng, deepLinkPlace.coords.lat], zoom: 14, duration: 1200 });
+          setTimeout(function() {
+            new mapboxgl.Popup({ offset: deepLinkPlace.polygon ? 0 : 18, maxWidth: '280px', closeButton: true })
+              .setLngLat([deepLinkPlace.coords.lng, deepLinkPlace.coords.lat])
+              .setHTML(buildPopupHTML(deepLinkPlace))
+              .addTo(map);
+          }, 1300);
+        } else {
+          // Fit bounds
+          if (allPlaces.length > 0) {
+            var bounds = new mapboxgl.LngLatBounds();
+            allPlaces.forEach(function (p) { bounds.extend([p.coords.lng, p.coords.lat]); });
+            map.fitBounds(bounds, { padding: 60, maxZoom: 12 });
+          }
         }
 
         if (loadingEl) loadingEl.classList.add('hidden');
