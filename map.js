@@ -776,9 +776,12 @@
   function ensureHatchPattern(color) {
     var key = 'hatch-' + color.replace('#', '');
     if (hatchPatterns[key]) return key;
-    var canvas = createHatchPattern(color, 8);
+    var size = 8;
+    var canvas = createHatchPattern(color, size);
+    var ctx = canvas.getContext('2d');
+    var imageData = ctx.getImageData(0, 0, size, size);
     if (!map.hasImage(key)) {
-      map.addImage(key, canvas, { sdf: false });
+      map.addImage(key, { width: size, height: size, data: imageData.data }, { sdf: false });
     }
     hatchPatterns[key] = true;
     return key;
