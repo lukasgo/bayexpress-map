@@ -42,6 +42,8 @@
   var radiusNm     = 5;
   var draw         = null;
   var measureActive = false;
+  var polygonLayerIds = [];  // track polygon layer IDs for cleanup
+  var hatchPatterns  = {};   // cache of registered hatch pattern image names
 
   var STYLE_STREETS   = 'mapbox://styles/bayexpress/cj4fpg6iu1jgq2rqmr0tbxukc';
   var STYLE_SATELLITE = 'mapbox://styles/mapbox/satellite-streets-v12';
@@ -107,15 +109,45 @@
     var raw = post.codeinjection_head;
     if (!raw) return null;
 
-    // Extract content from meta tag if present
-    // Use double-quote only matching since Ghost always wraps attributes in double quotes
-    // e.g. <meta name="geo.position" content="36° 10.66' N - 29° 51.45' E">
-    var metaMatch = raw.match(/content\s*=\s*"([^"]+)"/i);
-    var text = metaMatch ? metaMatch[1] : raw;
+    var result = {};
 
-    var coords = parseCoordinates(text);
-    if (coords) return { coords: coords, raw: text.replace(/<[^>]+>/g, '').trim() };
+    // Extract point: <meta name="geo.position" content="...">
+    var posMatch = raw.match(/name\s*=\s*"geo\.position"\s+content\s*=\s*"([^"]+)"/i);
+    if (!posMatch) {
+      // Fallback: legacy format — any meta with just content attribute
+      posMatch = raw.match(/content\s*=\s*"([^"]+)"/i);
+    }
+    if (posMatch) {
+      var coords = parseCoordinates(posMatch[1]);
+      if (coords) {
+        result.coords = coords;
+        result.raw = posMatch[1].trim();
+      }
+    }
+
+    // Extract polygon: <meta name="geo.polygon" content="...">
+    var polyMatch = raw.match(/name\s*=\s*"geo\.polygon"\s+content\s*=\s*"([^"]+)"/i);
+    if (polyMatch) {
+      var points = polyMatch[1].split('|').map(function(s) {
+        return parseCoordinates(s.trim());
+      }).filter(Boolean);
+      if (points.length >= 3) {
+        result.polygon = points;
+        if (!result.coords) {
+          result.coords = getCentroid(points);
+          result.raw = polyMatch[1].split('|')[0].trim();
+        }
+      }
+    }
+
+    if (result.coords || result.polygon) return result;
     return null;
+  }
+
+  function getCentroid(points) {
+    var latSum = 0, lngSum = 0;
+    points.forEach(function(p) { latSum += p.lat; lngSum += p.lng; });
+    return { lat: latSum / points.length, lng: lngSum / points.length };
   }
 
 
@@ -214,6 +246,7 @@
         slug: post.slug,
         coords: coordResult.coords,
         coordsText: coordResult.raw,
+        polygon: coordResult.polygon || null,
         category: primaryCat,
         region: region,
         allTags: catTags,
@@ -714,6 +747,130 @@
 
 
   // ══════════════════════════════════════════════════════════════
+  // POLYGON AREAS (buoy fields, no-anchor zones, etc.)
+  // ══════════════════════════════════════════════════════════════
+
+  function createHatchPattern(color, size) {
+    var canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.45;
+    ctx.beginPath();
+    ctx.moveTo(0, size);
+    ctx.lineTo(size, 0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-size / 2, size / 2);
+    ctx.lineTo(size / 2, -size / 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(size / 2, size * 1.5);
+    ctx.lineTo(size * 1.5, size / 2);
+    ctx.stroke();
+    return canvas;
+  }
+
+  function ensureHatchPattern(color) {
+    var key = 'hatch-' + color.replace('#', '');
+    if (hatchPatterns[key]) return key;
+    var canvas = createHatchPattern(color, 8);
+    if (!map.hasImage(key)) {
+      map.addImage(key, canvas, { sdf: false });
+    }
+    hatchPatterns[key] = true;
+    return key;
+  }
+
+  function addPolygonLayers(place) {
+    var cat = categories[place.category] || {};
+    var color = cat.color || '#888';
+    var sourceId = 'polygon-src-' + place.id;
+    var fillId = 'polygon-fill-' + place.id;
+    var hatchId = 'polygon-hatch-' + place.id;
+    var lineId = 'polygon-line-' + place.id;
+
+    // Build GeoJSON polygon ring (auto-close)
+    var ring = place.polygon.map(function(p) { return [p.lng, p.lat]; });
+    ring.push(ring[0]); // close the ring
+
+    var geojson = {
+      type: 'Feature',
+      geometry: { type: 'Polygon', coordinates: [ring] }
+    };
+
+    map.addSource(sourceId, { type: 'geojson', data: geojson });
+
+    // 1. Fill layer
+    map.addLayer({
+      id: fillId,
+      type: 'fill',
+      source: sourceId,
+      paint: {
+        'fill-color': color,
+        'fill-opacity': 0.3
+      }
+    });
+
+    // 2. Hatch pattern layer
+    var patternKey = ensureHatchPattern(color);
+    map.addLayer({
+      id: hatchId,
+      type: 'fill',
+      source: sourceId,
+      paint: {
+        'fill-pattern': patternKey
+      }
+    });
+
+    // 3. Dashed border
+    map.addLayer({
+      id: lineId,
+      type: 'line',
+      source: sourceId,
+      paint: {
+        'line-color': color,
+        'line-width': 2,
+        'line-dasharray': [6, 3]
+      }
+    });
+
+    polygonLayerIds.push({ source: sourceId, layers: [fillId, hatchId, lineId] });
+
+    // Click handler — popup at click location
+    map.on('click', fillId, function(e) {
+      e.originalEvent.stopPropagation();
+      new mapboxgl.Popup({ offset: 0, maxWidth: '280px', closeButton: true })
+        .setLngLat(e.lngLat)
+        .setHTML(buildPopupHTML(place))
+        .addTo(map);
+    });
+
+    // Cursor change on hover
+    map.on('mouseenter', fillId, function() {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+    map.on('mouseleave', fillId, function() {
+      map.getCanvas().style.cursor = '';
+    });
+  }
+
+  function removePolygonLayers() {
+    polygonLayerIds.forEach(function(entry) {
+      entry.layers.forEach(function(layerId) {
+        if (map.getLayer(layerId)) map.removeLayer(layerId);
+      });
+      if (map.getSource(entry.source)) map.removeSource(entry.source);
+    });
+    polygonLayerIds = [];
+    // Reset hatch pattern cache (images removed on style change anyway)
+    hatchPatterns = {};
+  }
+
+
+  // ══════════════════════════════════════════════════════════════
   // CLUSTERING + MARKERS
   // ══════════════════════════════════════════════════════════════
 
@@ -746,9 +903,18 @@
 
   function renderMarkers() {
     clearMarkers();
+    removePolygonLayers();
 
     var filtered = getFilteredPlaces();
-    buildClusterIndex(filtered);
+
+    // Separate polygon and point-only places
+    var pointPlaces = [];
+    filtered.forEach(function(p) {
+      if (p.polygon) addPolygonLayers(p);
+      if (p.coords && !p.polygon) pointPlaces.push(p);
+    });
+
+    buildClusterIndex(pointPlaces);
 
     var bounds = map.getBounds();
     var zoom = Math.floor(map.getZoom());
@@ -781,7 +947,7 @@
 
       } else {
         // ── Single marker ──
-        var place = filtered[feature.properties.index];
+        var place = pointPlaces[feature.properties.index];
         if (!place) return;
 
         var cat = categories[place.category] || {};
