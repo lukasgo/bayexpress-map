@@ -1028,12 +1028,9 @@
               .addTo(map);
           }, 1300);
         } else {
-          // Fit bounds
-          if (allPlaces.length > 0) {
-            var bounds = new mapboxgl.LngLatBounds();
-            allPlaces.forEach(function (p) { bounds.extend([p.coords.lng, p.coords.lat]); });
-            map.fitBounds(bounds, { padding: 60, maxZoom: 12 });
-          }
+          // Default view: Turkish Aegean coast
+          // SW: 35° 10' N, 25° 48' E — NE: 38° 48' N, 31° 10' E
+          map.fitBounds([[25.8, 35.1667], [31.1667, 38.8]], { padding: 20 });
         }
 
         if (loadingEl) loadingEl.classList.add('hidden');
